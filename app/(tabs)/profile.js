@@ -20,32 +20,45 @@ export default function ProfileScreen() {
   const [editName, setEditName] = useState(user?.name || '');
   const [editEmail, setEditEmail] = useState(user?.email || '');
 
+  // Update form fields when user changes
+  useEffect(() => {
+    if (user) {
+      setEditName(user.name || '');
+      setEditEmail(user.email || '');
+    }
+  }, [user]);
+
   // Redirect to welcome when signed out
   useEffect(() => {
     if (!user) {
       router.replace('/welcome');
     }
-  }, [user]);
+  }, [user, router]);
 
-const handleSignOut = () => {
-  Alert.alert(
-    'Sign Out',
-    'Are you sure you want to sign out?',
-    [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Sign Out',
-        style: 'destructive',
-        onPress: handleSignOutConfirmed,
-      },
-    ]
-  );
-};
+  const handleSignOut = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: handleSignOutConfirmed,
+        },
+      ]
+    );
+  };
 
-const handleSignOutConfirmed = async () => {
-  await signOut();
-  // router.replace('/welcome'); // Not needed, AuthGate will handle redirect
-};
+  const handleSignOutConfirmed = async () => {
+    try {
+      await signOut();
+      // The useEffect above will handle the redirect when user becomes null
+    } catch (error) {
+      console.log('Sign out error:', error);
+      Alert.alert('Error', 'Failed to sign out. Please try again.');
+    }
+  };
 
   const handleUpdateProfile = async () => {
     if (!editName.trim() || !editEmail.trim()) {
@@ -53,19 +66,40 @@ const handleSignOutConfirmed = async () => {
       return;
     }
 
-    const result = await updateProfile(editName, editEmail);
-    if (result.success) {
-      setEditProfileModal(false);
-      Alert.alert('Success', 'Profile updated successfully!');
-    } else {
-      Alert.alert('Error', result.error);
+    try {
+      const result = await updateProfile(editName, editEmail);
+      if (result.success) {
+        setEditProfileModal(false);
+        Alert.alert('Success', 'Profile updated successfully!');
+      } else {
+        Alert.alert('Error', result.error);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update profile. Please try again.');
     }
   };
 
   // RESET WORKOUTS BUTTON HANDLER
   const handleResetWorkouts = async () => {
-    await AsyncStorage.removeItem('workouts');
-    Alert.alert('Workouts reset!', 'Restart the app to see changes.');
+    Alert.alert(
+      'Reset Workouts',
+      'Are you sure you want to reset all workouts? This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem('workouts');
+              Alert.alert('Success', 'Workouts have been reset!');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to reset workouts. Please try again.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const renderEditProfileModal = () => (
@@ -93,7 +127,12 @@ const handleSignOutConfirmed = async () => {
           <View style={styles.modalButtons}>
             <TouchableOpacity
               style={[styles.modalButton, styles.cancelButton]}
-              onPress={() => setEditProfileModal(false)}
+              onPress={() => {
+                setEditProfileModal(false);
+                // Reset form to original values
+                setEditName(user?.name || '');
+                setEditEmail(user?.email || '');
+              }}
             >
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
@@ -234,6 +273,11 @@ const handleSignOutConfirmed = async () => {
       </View>
     </Modal>
   );
+
+  // Don't render anything if user is null (prevents flash before redirect)
+  if (!user) {
+    return null;
+  }
 
   const containerStyle = settings.darkMode ?
     [styles.container, styles.darkContainer] : styles.container;
