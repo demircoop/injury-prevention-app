@@ -1,82 +1,79 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useState } from 'react';
+import { useAuth } from './AuthContext.js';
 
 const SettingsContext = createContext();
 
 const defaultSettings = {
-  // Notification settings
   workoutReminders: true,
   progressUpdates: true,
   injuryAlerts: true,
-  
-  // Privacy settings
   darkMode: false,
   shareProgress: false,
   dataAnalytics: true,
-  
-  // App preferences
-  units: 'metric', // metric or imperial
+  units: 'metric',
   language: 'en',
   autoSync: true,
 };
 
 export function SettingsProvider({ children }) {
+  const { user } = useAuth();
   const [settings, setSettings] = useState(defaultSettings);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load settings from storage when app starts
   useEffect(() => {
-    loadStoredSettings();
-  }, []);
+    if (user) {
+      loadStoredSettings();
+    } else {
+      setSettings(defaultSettings);
+      setIsLoading(false);
+    }
+    // eslint-disable-next-line
+  }, [user]);
 
   const loadStoredSettings = async () => {
+    setIsLoading(true);
     try {
-      const storedSettings = await AsyncStorage.getItem('appSettings');
+      const key = `appSettings_${user.id}`;
+      const storedSettings = await AsyncStorage.getItem(key);
       if (storedSettings) {
         const parsedSettings = JSON.parse(storedSettings);
         setSettings({ ...defaultSettings, ...parsedSettings });
+      } else {
+        setSettings(defaultSettings);
       }
     } catch (error) {
       console.log('Error loading settings:', error);
+      setSettings(defaultSettings);
     } finally {
       setIsLoading(false);
     }
   };
 
   const updateSettings = async (newSettings) => {
+    if (!user) return;
     try {
       const updatedSettings = { ...settings, ...newSettings };
       setSettings(updatedSettings);
-      await AsyncStorage.setItem('appSettings', JSON.stringify(updatedSettings));
-      
-      // Handle specific setting changes
-      if (newSettings.darkMode !== undefined) {
-        // You could trigger app-wide theme changes here
-        console.log('Dark mode toggled:', newSettings.darkMode);
-      }
-      
-      if (newSettings.workoutReminders !== undefined) {
-        // You could set up or cancel local notifications here
-        console.log('Workout reminders toggled:', newSettings.workoutReminders);
-      }
-      
+      const key = `appSettings_${user.id}`;
+      await AsyncStorage.setItem(key, JSON.stringify(updatedSettings));
     } catch (error) {
       console.log('Error saving settings:', error);
     }
   };
 
   const resetSettings = async () => {
+    if (!user) return;
     try {
       setSettings(defaultSettings);
-      await AsyncStorage.setItem('appSettings', JSON.stringify(defaultSettings));
+      const key = `appSettings_${user.id}`;
+      await AsyncStorage.setItem(key, JSON.stringify(defaultSettings));
     } catch (error) {
       console.log('Error resetting settings:', error);
     }
   };
 
-  const getSetting = (key) => {
-    return settings[key];
-  };
+  const getSetting = (key) => settings[key];
 
   return (
     <SettingsContext.Provider value={{

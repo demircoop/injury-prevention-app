@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Alert, Button, Modal, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from 'C:/Users/Cooper/Documents/injury-prevention-app/app/context/AuthContext.js';
 import { useSettings } from 'C:/Users/Cooper/Documents/injury-prevention-app/app/context/SettingsContext.js';
@@ -7,6 +8,7 @@ import { useSettings } from 'C:/Users/Cooper/Documents/injury-prevention-app/app
 export default function ProfileScreen() {
   const { user, signOut, updateProfile } = useAuth();
   const { settings, updateSettings } = useSettings();
+  const router = useRouter();
 
   // Modal states
   const [editProfileModal, setEditProfileModal] = useState(false);
@@ -18,16 +20,32 @@ export default function ProfileScreen() {
   const [editName, setEditName] = useState(user?.name || '');
   const [editEmail, setEditEmail] = useState(user?.email || '');
 
-  const handleSignOut = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Sign Out', style: 'destructive', onPress: signOut },
-      ]
-    );
-  };
+  // Redirect to welcome when signed out
+  useEffect(() => {
+    if (!user) {
+      router.replace('/welcome');
+    }
+  }, [user]);
+
+const handleSignOut = () => {
+  Alert.alert(
+    'Sign Out',
+    'Are you sure you want to sign out?',
+    [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: handleSignOutConfirmed,
+      },
+    ]
+  );
+};
+
+const handleSignOutConfirmed = async () => {
+  await signOut();
+  // router.replace('/welcome'); // Not needed, AuthGate will handle redirect
+};
 
   const handleUpdateProfile = async () => {
     if (!editName.trim() || !editEmail.trim()) {
