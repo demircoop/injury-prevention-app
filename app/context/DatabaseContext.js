@@ -21,7 +21,23 @@ const SAMPLE_WORKOUTS = [
     category: 'Back',
     completed: false
   },
-  // ...add more workouts as needed
+  {
+    id: '2',
+    title: 'Core Stability',
+    duration: 30,
+    difficulty: 'Intermediate',
+    description: 'Focus on core stability to prevent injuries and improve balance',
+    exercises: [
+      { name: 'Plank', duration: 3, instructions: 'Hold a plank position on your forearms and toes.' },
+      { name: 'Side Plank', duration: 2, instructions: 'Hold a side plank position on each side.' },
+      { name: 'Russian Twists', duration: 3, instructions: 'Sit with feet off the ground, twist torso side to side.' },
+      { name: 'Bird Dog', duration: 3, instructions: 'Extend opposite arm and leg, hold for a few seconds, alternate sides.' },
+      { name: 'Glute Bridge', duration: 3, instructions: 'Lift hips up, squeeze glutes, hold for a second, lower down.' }
+    ],
+    category: 'Core', 
+    completed: false,
+  },
+  // ...add more workouts soon
 ];
 
 export function DatabaseProvider({ children }) {

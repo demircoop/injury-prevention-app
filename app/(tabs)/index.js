@@ -3,7 +3,7 @@ import { useAuth } from 'C:/Users/Cooper/Documents/injury-prevention-app/app/con
 import { useSettings } from 'C:/Users/Cooper/Documents/injury-prevention-app/app/context/SettingsContext.js';
 
 export default function HomeScreen() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { settings } = useSettings();
 
   const containerStyle = settings.darkMode ? 

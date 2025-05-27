@@ -20,14 +20,6 @@ export default function ProfileScreen() {
   const [editName, setEditName] = useState(user?.name || '');
   const [editEmail, setEditEmail] = useState(user?.email || '');
 
-  // Update form fields when user changes
-  useEffect(() => {
-    if (user) {
-      setEditName(user.name || '');
-      setEditEmail(user.email || '');
-    }
-  }, [user]);
-
   // Redirect to welcome when signed out
   useEffect(() => {
     if (!user) {
@@ -35,29 +27,11 @@ export default function ProfileScreen() {
     }
   }, [user, router]);
 
-  const handleSignOut = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: handleSignOutConfirmed,
-        },
-      ]
-    );
-  };
-
-  const handleSignOutConfirmed = async () => {
-    try {
-      await signOut();
-      // The useEffect above will handle the redirect when user becomes null
-    } catch (error) {
-      console.log('Sign out error:', error);
-      Alert.alert('Error', 'Failed to sign out. Please try again.');
-    }
+  // DIRECT SIGN OUT BUTTON (no Alert)
+  const handleSignOut = async () => {
+    console.log('Sign out button pressed');
+    await signOut();
+    console.log('Sign out finished');
   };
 
   const handleUpdateProfile = async () => {
@@ -66,16 +40,12 @@ export default function ProfileScreen() {
       return;
     }
 
-    try {
-      const result = await updateProfile(editName, editEmail);
-      if (result.success) {
-        setEditProfileModal(false);
-        Alert.alert('Success', 'Profile updated successfully!');
-      } else {
-        Alert.alert('Error', result.error);
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to update profile. Please try again.');
+    const result = await updateProfile(editName, editEmail);
+    if (result.success) {
+      setEditProfileModal(false);
+      Alert.alert('Success', 'Profile updated successfully!');
+    } else {
+      Alert.alert('Error', result.error);
     }
   };
 
@@ -92,8 +62,12 @@ export default function ProfileScreen() {
           onPress: async () => {
             try {
               await AsyncStorage.removeItem('workouts');
+              if (user?.id) {
+                await AsyncStorage.removeItem(`workouts_${user.id}`);
+              }
               Alert.alert('Success', 'Workouts have been reset!');
             } catch (error) {
+              console.error('Reset workouts error:', error);
               Alert.alert('Error', 'Failed to reset workouts. Please try again.');
             }
           },
@@ -127,12 +101,7 @@ export default function ProfileScreen() {
           <View style={styles.modalButtons}>
             <TouchableOpacity
               style={[styles.modalButton, styles.cancelButton]}
-              onPress={() => {
-                setEditProfileModal(false);
-                // Reset form to original values
-                setEditName(user?.name || '');
-                setEditEmail(user?.email || '');
-              }}
+              onPress={() => setEditProfileModal(false)}
             >
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
@@ -274,7 +243,7 @@ export default function ProfileScreen() {
     </Modal>
   );
 
-  // Don't render anything if user is null (prevents flash before redirect)
+  // Don't render if no user (prevents flash)
   if (!user) {
     return null;
   }
@@ -340,6 +309,7 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* DIRECT SIGN OUT BUTTON */}
       <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
         <Text style={styles.signOutText}>Sign Out</Text>
       </TouchableOpacity>
