@@ -2,8 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useDatabase } from 'C:/Users/Cooper/Documents/injury-prevention-app/app/context/DatabaseContext.js';
-import { useSettings } from 'C:/Users/Cooper/Documents/injury-prevention-app/app/context/SettingsContext.js';
+import { useDatabase } from '../context/DatabaseContext';
+import { useSettings } from '../context/SettingsContext';
 
 export default function WorkoutDetailScreen() {
   const { id } = useLocalSearchParams();
