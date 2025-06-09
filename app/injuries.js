@@ -1,8 +1,8 @@
-import { useAuth } from '.app/context/AuthContext';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import { useAuth } from './context/AuthContext';
 
 const BODY_PARTS = [
   { key: 'head', label: 'Head', injuries: ['Concussion', 'Migraine', 'Whiplash'] },
