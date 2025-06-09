@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSettings } from 'app/context/SettingsContext';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Button, Modal, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useAuth } from 'C:/Users/Cooper/Documents/injury-prevention-app/app/context/AuthContext.js';
-import { useSettings } from 'C:/Users/Cooper/Documents/injury-prevention-app/app/context/SettingsContext.js';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProfileScreen() {
   const { user, signOut, updateProfile } = useAuth();

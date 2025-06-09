@@ -1,7 +1,7 @@
+import { useAuth } from 'app/context/AuthContext';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useAuth } from 'C:/Users/Cooper/Documents/injury-prevention-app/app/context/AuthContext.js';
 
 export default function LoginScreen() {
   const router = useRouter();

@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useSettings } from 'app/context/SettingsContext';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { ActivityIndicator, Button, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useDatabase } from 'C:/Users/Cooper/Documents/injury-prevention-app/app/context/DatabaseContext.js';
-import { useSettings } from 'C:/Users/Cooper/Documents/injury-prevention-app/app/context/SettingsContext.js';
+import { useDatabase } from './context/DatabaseContext';
 
 export default function WorkoutsScreen() {
   const { workouts, isLoading, resetWorkouts } = useDatabase();

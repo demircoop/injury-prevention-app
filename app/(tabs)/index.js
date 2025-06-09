@@ -1,6 +1,6 @@
+import { useSettings } from 'app/context/SettingsContext';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useAuth } from 'C:/Users/Cooper/Documents/injury-prevention-app/app/context/AuthContext.js';
-import { useSettings } from 'C:/Users/Cooper/Documents/injury-prevention-app/app/context/SettingsContext.js';
+import { useAuth } from '../context/AuthContext';
 
 export default function HomeScreen() {
   const { user, signOut } = useAuth();
