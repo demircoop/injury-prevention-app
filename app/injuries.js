@@ -1,4 +1,4 @@
-import { useAuth } from 'app/context/AuthContext';
+import { useAuth } from '.app/context/AuthContext';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';

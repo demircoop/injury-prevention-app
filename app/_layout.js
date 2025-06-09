@@ -1,8 +1,8 @@
-import { SettingsProvider } from 'app/context/SettingsContext';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
-import { AuthProvider, useAuth } from '../context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { DatabaseProvider } from './context/DatabaseContext';
+import { SettingsProvider } from './context/SettingsContext';
 
 function AuthGate({ children }) {
   const { user, isLoading } = useAuth();

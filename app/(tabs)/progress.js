@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSettings } from 'app/context/SettingsContext';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useDatabase } from './context/DatabaseContext';
+import { useDatabase } from '../context/DatabaseContext';
 
 export default function ProgressScreen() {
   const [selectedTab, setSelectedTab] = useState('overview');

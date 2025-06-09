@@ -3,7 +3,7 @@ import { useSettings } from 'app/context/SettingsContext';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { ActivityIndicator, Button, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useDatabase } from './context/DatabaseContext';
+import { useDatabase } from '../context/DatabaseContext';
 
 export default function WorkoutsScreen() {
   const { workouts, isLoading, resetWorkouts } = useDatabase();
