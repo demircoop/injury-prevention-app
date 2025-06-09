@@ -33,7 +33,50 @@ export default function ProfileScreen() {
     await signOut();
     console.log('Sign out finished');
   };
+const handleResetAppData = async () => {
+  Alert.alert(
+    'Reset App Data',
+    'This will erase all user data and create a new dummy account. Continue?',
+    [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Reset',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            // Remove all AsyncStorage keys related to users and workouts
+            await AsyncStorage.clear();
 
+            // Create a new dummy user
+            const dummyUser = {
+              id: Date.now().toString(),
+              name: 'Demo User',
+              email: `demo${Math.floor(Math.random() * 10000)}@example.com`,
+              password: 'password',
+              injuries: [],
+              createdAt: new Date().toISOString(),
+            };
+            await AsyncStorage.setItem('users', JSON.stringify([dummyUser]));
+            await AsyncStorage.setItem('currentUser', JSON.stringify({
+              id: dummyUser.id,
+              name: dummyUser.name,
+              email: dummyUser.email,
+              injuries: [],
+            }));
+
+            // Optionally, reset workouts here if you have default workouts
+
+            Alert.alert('Success', 'App data reset. Restarting...');
+            // Reload the app or navigate to welcome/login
+            router.replace('/welcome');
+          } catch (error) {
+            Alert.alert('Error', 'Failed to reset app data.');
+          }
+        },
+      },
+    ]
+  );
+};
   const handleUpdateProfile = async () => {
     if (!editName.trim() || !editEmail.trim()) {
       Alert.alert('Error', 'Please fill in all fields');
@@ -314,15 +357,19 @@ export default function ProfileScreen() {
         <Text style={styles.signOutText}>Sign Out</Text>
       </TouchableOpacity>
 
-      {/* RESET WORKOUTS BUTTON */}
       <View style={{ marginHorizontal: 20, marginBottom: 30 }}>
-        <Button
-          title="Reset Workouts"
-          onPress={handleResetWorkouts}
-          color="#FF3B30"
-        />
-      </View>
-
+  <Button
+    title="Reset Workouts"
+    onPress={handleResetWorkouts}
+    color="#FF3B30"
+  />
+  <View style={{ height: 10 }} />
+  <Button
+    title="Reset App Data (New Dummy Account)"
+    color="#007AFF"
+    onPress={handleResetAppData}
+  />
+</View>
       {renderEditProfileModal()}
       {renderNotificationModal()}
       {renderPrivacyModal()}

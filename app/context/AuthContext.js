@@ -7,7 +7,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load user from storage when app starts
   useEffect(() => {
     loadStoredUser();
   }, []);
@@ -25,79 +24,78 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const signUp = async (email, password, name) => {
-    setIsLoading(true);
+const signUp = async (email, password, name) => {
+  setIsLoading(true);
+  try {
+    let existingUsers = await AsyncStorage.getItem('users');
+    let users = [];
     try {
-      // Get existing users
-      const existingUsers = await AsyncStorage.getItem('users');
-      const users = existingUsers ? JSON.parse(existingUsers) : [];
-      
-      // Check for duplicate email
-      if (users.find(u => u.email === email)) {
-        return { success: false, error: 'Email already exists' };
-      }
-
-      // Create new user
-      const newUser = {
-        id: Date.now().toString(),
-        email,
-        name,
-        password, // In production, hash this!
-        createdAt: new Date().toISOString(),
-      };
-
-      // Save to users list
-      users.push(newUser);
-      await AsyncStorage.setItem('users', JSON.stringify(users));
-
-      // Set current user (without password for security)
-      const userForState = { 
-        id: newUser.id, 
-        email: newUser.email, 
-        name: newUser.name 
-      };
-      
-      setUser(userForState);
-      await AsyncStorage.setItem('currentUser', JSON.stringify(userForState));
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    } finally {
-      setIsLoading(false);
+      users = existingUsers ? JSON.parse(existingUsers) : [];
+      if (!Array.isArray(users)) users = [];
+    } catch (e) {
+      users = [];
     }
+    if (users.find(u => u.email === email)) {
+      return { success: false, error: 'Email already exists' };
+    }
+    const newUser = {
+      id: Date.now().toString(),
+      email,
+      name,
+      password,
+      injuries: [],
+      createdAt: new Date().toISOString(),
+    };
+    users.push(newUser);
+    await AsyncStorage.setItem('users', JSON.stringify(users));
+    const userForState = { id: newUser.id, email: newUser.email, name: newUser.name, injuries: [] };
+    setUser(userForState);
+    await AsyncStorage.setItem('currentUser', JSON.stringify(userForState));
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message || 'Unknown error during sign up' };
+  } finally {
+    setIsLoading(false);
+  }
+};
+  const updateUserInjuries = async (injuries) => {
+    if (!user) return;
+    const updatedUser = { ...user, injuries };
+    setUser(updatedUser);
+    await AsyncStorage.setItem('currentUser', JSON.stringify(updatedUser));
+    // Also update in users list
+    const existingUsers = await AsyncStorage.getItem('users');
+    let users = existingUsers ? JSON.parse(existingUsers) : [];
+    users = users.map(u => u.id === user.id ? { ...u, injuries } : u);
+    await AsyncStorage.setItem('users', JSON.stringify(users));
   };
 
   const signIn = async (email, password) => {
-    setIsLoading(true);
+  setIsLoading(true);
+  try {
+    let existingUsers = await AsyncStorage.getItem('users');
+    let users = [];
     try {
-      // Get all users
-      const existingUsers = await AsyncStorage.getItem('users');
-      const users = existingUsers ? JSON.parse(existingUsers) : [];
-      
-      // Find user with matching email and password
-      const foundUser = users.find(u => u.email === email && u.password === password);
-      
-      if (foundUser) {
-        // Set current user (without password)
-        const userForState = { 
-          id: foundUser.id, 
-          email: foundUser.email, 
-          name: foundUser.name 
-        };
-        
-        setUser(userForState);
-        await AsyncStorage.setItem('currentUser', JSON.stringify(userForState));
-        return { success: true };
-      } else {
-        return { success: false, error: 'Invalid email or password' };
-      }
-    } catch (error) {
-      return { success: false, error: error.message };
-    } finally {
-      setIsLoading(false);
+      users = existingUsers ? JSON.parse(existingUsers) : [];
+      if (!Array.isArray(users)) users = [];
+    } catch (e) {
+      users = [];
     }
-  };
+    const foundUser = users.find(u => u.email === email && u.password === password);
+    if (foundUser) {
+      const userForState = { id: foundUser.id, email: foundUser.email, name: foundUser.name, injuries: foundUser.injuries || [] };
+      setUser(userForState);
+      await AsyncStorage.setItem('currentUser', JSON.stringify(userForState));
+      return { success: true };
+    } else {
+      return { success: false, error: 'Invalid email or password' };
+    }
+  } catch (error) {
+    return { success: false, error: error.message || 'Unknown error during sign in' };
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const updateProfile = async (name, email) => {
     setIsLoading(true);
@@ -192,6 +190,7 @@ export function AuthProvider({ children }) {
       signOut,
       updateProfile,
       deleteAccount,
+      updateUserInjuries,
     }}>
       {children}
     </AuthContext.Provider>

@@ -19,7 +19,8 @@ const SAMPLE_WORKOUTS = [
       { name: 'Modified Plank', duration: 2, instructions: 'Hold a plank position on your knees and elbows.' }
     ],
     category: 'Back',
-    completed: false
+    completed: false,
+    injuries: ['Lower Back Strain', 'Herniated Disc', 'Sciatica'],
   },
   {
     id: '2',
@@ -34,10 +35,11 @@ const SAMPLE_WORKOUTS = [
       { name: 'Bird Dog', duration: 3, instructions: 'Extend opposite arm and leg, hold for a few seconds, alternate sides.' },
       { name: 'Glute Bridge', duration: 3, instructions: 'Lift hips up, squeeze glutes, hold for a second, lower down.' }
     ],
-    category: 'Core', 
+    category: 'Core',
     completed: false,
+    injuries: ['Lower Back Strain', 'Herniated Disc', 'Sciatica', 'ACL Tear', 'Meniscus Tear'],
   },
-  // ...add more workouts soon
+  // ...add more workouts with relevant injuries
 ];
 
 export function DatabaseProvider({ children }) {
@@ -45,7 +47,6 @@ export function DatabaseProvider({ children }) {
   const [workouts, setWorkouts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load workouts for the current user
   useEffect(() => {
     if (!user) {
       setWorkouts([]);
@@ -56,24 +57,25 @@ export function DatabaseProvider({ children }) {
     const load = async () => {
       const key = `workouts_${user.id}`;
       const stored = await AsyncStorage.getItem(key);
-      if (stored) setWorkouts(JSON.parse(stored));
-      else {
-        setWorkouts(SAMPLE_WORKOUTS);
-        await AsyncStorage.setItem(key, JSON.stringify(SAMPLE_WORKOUTS));
+      let loadedWorkouts = stored ? JSON.parse(stored) : SAMPLE_WORKOUTS;
+      // Filter workouts by user injuries
+      if (user.injuries && user.injuries.length > 0) {
+        loadedWorkouts = loadedWorkouts.filter(w =>
+          w.injuries && w.injuries.some(injury => user.injuries.includes(injury))
+        );
       }
+      setWorkouts(loadedWorkouts);
       setIsLoading(false);
     };
     load();
   }, [user]);
 
-  // Save workouts for the current user
   const saveWorkouts = async (newWorkouts) => {
     if (!user) return;
     setWorkouts(newWorkouts);
     await AsyncStorage.setItem(`workouts_${user.id}`, JSON.stringify(newWorkouts));
   };
 
-  // Mark workout complete
   const completeWorkout = async (workoutId) => {
     const updated = workouts.map(w =>
       w.id === workoutId ? { ...w, completed: true, completedAt: new Date().toISOString() } : w
@@ -81,7 +83,6 @@ export function DatabaseProvider({ children }) {
     await saveWorkouts(updated);
   };
 
-  // Reset all workouts for current user
   const resetWorkouts = async () => {
     if (!user) return;
     await AsyncStorage.removeItem(`workouts_${user.id}`);

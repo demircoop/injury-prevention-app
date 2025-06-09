@@ -11,27 +11,26 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleSignUp = async () => {
-    if (!name || !email || !password || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields');
-      return;
-    }
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
-      return;
-    }
-    if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
-      return;
-    }
-    const result = await signUp(email, password, name);
-    if (result.success) {
-      router.replace('/'); // Go to home screen
-    } else {
-      Alert.alert('Sign Up Failed', result.error);
-    }
-  };
-
+const handleSignUp = async () => {
+  if (!name || !email || !password || !confirmPassword) {
+    Alert.alert('Error', 'Please fill in all fields');
+    return;
+  }
+  if (password !== confirmPassword) {
+    Alert.alert('Error', 'Passwords do not match');
+    return;
+  }
+  if (password.length < 6) {
+    Alert.alert('Error', 'Password must be at least 6 characters');
+    return;
+  }
+  const result = await signUp(email, password, name);
+  if (result.success) {
+    router.replace('/injuries');
+  } else {
+    Alert.alert('Sign Up Failed', result.error || 'Unknown error');
+  }
+};
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Create Account</Text>
