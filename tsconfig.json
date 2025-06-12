@@ -7,6 +7,6 @@
       "~/*": ["./*"]
     }
   },
-  "include": ["app", "app.config.js"],
+  "include": ["app-temp", "app.config.js"],
   "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js"]
 }
