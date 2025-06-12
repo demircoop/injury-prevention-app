@@ -36,11 +36,11 @@ export default {
     web: {
       favicon: "./assets/favicon.png"
     },
-plugins: [
-  "expo-router",
-  "expo-font",
-  "expo-web-browser"
-],
+// plugins: [
+//  "expo-router",
+//  "expo-font",
+//  "expo-web-browser"
+//],
 extra: {
   eas: {
     projectId: "592f5640-6b64-4737-a524-979e61343f5e"
